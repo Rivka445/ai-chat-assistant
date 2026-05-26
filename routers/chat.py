@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from openai import OpenAI
 from models import ChatRequest
 import os
@@ -11,6 +11,10 @@ with open(os.path.join(os.path.dirname(__file__), '..', 'prompt.md'), encoding='
 
 @router.post('/chat')
 async def chat(req: ChatRequest):
+    if not req.message or not req.message.strip():
+        raise HTTPException(status_code=400, detail='Message cannot be empty')
+    if len(req.message) > 1000:
+        raise HTTPException(status_code=400, detail='Message too long (max 1000 characters)')
     if req.products:
         catalog_lines = []
         for p in req.products:

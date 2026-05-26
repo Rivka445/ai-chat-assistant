@@ -11,8 +11,9 @@ async def search(req: SearchRequest):
 
     query_embedding = get_embedding(req.query)
 
+    products = req.products[:50]  # cap to avoid excessive API calls
     scored = []
-    for p in req.products:
+    for p in products:
         name = p.get('name') or p.get('Name', '')
         desc = p.get('description') or p.get('Description', '')
         product_embedding = get_embedding(f'{name} {desc}')
