@@ -1,13 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import SearchRequest
 from embeddings import get_embedding, cosine_similarity
+from rate_limiter import check_rate_limit
+from logger import logger
 
 router = APIRouter()
 
 @router.post('/search')
-async def search(req: SearchRequest):
+async def search(req: SearchRequest, _=Depends(check_rate_limit)):
     if not req.products:
         return {'results': []}
+    logger.info(f'Search request: "{req.query}"')
 
     query_embedding = get_embedding(req.query)
 
